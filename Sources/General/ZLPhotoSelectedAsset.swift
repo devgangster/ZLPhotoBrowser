@@ -8,11 +8,15 @@
 import UIKit
 import Photos
 
-public enum ZLPhotoSelectedAsset {
+public
+enum ZLPhotoSelectedAsset {
     case raw(asset: PHAsset)
     case edited(asset: PHAsset, editModel: ZLEditImageModel?, image: UIImage)
     case result(model: ZLResultModel)
-    
+}
+
+public
+extension ZLPhotoSelectedAsset {
     var asset: PHAsset {
         switch self {
         case let .raw(asset), let .edited(asset, _, _): return asset
@@ -21,8 +25,10 @@ public enum ZLPhotoSelectedAsset {
     }
 }
 
+
 extension ZLPhotoSelectedAsset: Equatable {
-    public static func ==(lhs: ZLPhotoSelectedAsset, rhs: ZLPhotoSelectedAsset) -> Bool {
+    public
+    static func ==(lhs: ZLPhotoSelectedAsset, rhs: ZLPhotoSelectedAsset) -> Bool {
         return lhs.asset == rhs.asset
     }
 }
