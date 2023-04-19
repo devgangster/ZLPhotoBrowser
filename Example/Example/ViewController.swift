@@ -227,9 +227,8 @@ class ViewController: UIViewController {
 //            }
         
         /// Using this init method, you can continue editing the selected photo
-        let ac = ZLPhotoPreviewSheet(results: takeSelectedAssetsSwitch.isOn ? selectedResults : nil)
-        
-//        let ac = ZLPhotoPreviewSheet(selectedAssets: takeSelectedAssetsSwitch.isOn ? selectedAssets : nil)
+//        let ac = ZLPhotoPreviewSheet(results: takeSelectedAssetsSwitch.isOn ? selectedResults : nil)
+        let ac = ZLPhotoPreviewSheet(selectedAssets: takeSelectedAssetsSwitch.isOn ? selectedAssets : nil)
         
         ac.selectImageBlock = { [weak self] results, isOriginal in
             guard let `self` = self else { return }

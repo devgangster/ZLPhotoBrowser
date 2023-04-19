@@ -144,20 +144,46 @@ public class ZLPhotoPreviewSheet: UIView {
         zl_debugPrint("ZLPhotoPreviewSheet deinit")
     }
     
-    /// - Parameter selectedAssets: preselected assets
-    @objc public convenience init(selectedAssets: [PHAsset]? = nil) {
+    /// Using this init method, you can continue editing the selected photo.
+    /// - Note:
+    ///     Provided for all  selected assets
+    /// - Parameters:
+    ///    - results : preselected results
+    public convenience init(selection: [ZLPhotoSelectedAsset]? = nil) {
         self.init(frame: .zero)
         
         let config = ZLPhotoConfiguration.default()
-        selectedAssets?.zl.removeDuplicate().forEach { asset in
-            if !config.allowMixSelect, asset.mediaType == .video {
+        selection?.removeDuplicate().forEach { result in
+            if !config.allowMixSelect, result.asset.mediaType == .video {
                 return
             }
+
+            switch result {
+            case let .raw(asset):
+                let m = ZLPhotoModel(asset: asset)
+                m.isSelected = true
+                self.arrSelectedModels.append(m)
+
+            case let .edited(asset, editModel, image):
+                let m = ZLPhotoModel(asset: asset)
+                m.editImage = image
+                m.editImageModel = editModel
+                m.isSelected = true
+                self.arrSelectedModels.append(m)
             
-            let m = ZLPhotoModel(asset: asset)
-            m.isSelected = true
-            self.arrSelectedModels.append(m)
+            case let .result(model):
+                let m = ZLPhotoModel(asset: model.asset)
+                m.editImage = model.image
+                m.editImageModel = model.editModel
+                m.isSelected = true
+                self.arrSelectedModels.append(m)
+            }
         }
+    }
+    
+    /// - Parameter selectedAssets: preselected assets
+    @objc public convenience init(selectedAssets: [PHAsset]? = nil) {
+        self.init(selection: (selectedAssets ?? []).map({ ZLPhotoSelectedAsset.raw(asset: $0) }))
     }
     
     /// Using this init method, you can continue editing the selected photo.
@@ -166,22 +192,11 @@ public class ZLPhotoPreviewSheet: UIView {
     /// - Parameters:
     ///    - results : preselected results
     @objc public convenience init(results: [ZLResultModel]? = nil) {
-        self.init(frame: .zero)
-        
-        let config = ZLPhotoConfiguration.default()
-        results?.zl.removeDuplicate().forEach { result in
-            if !config.allowMixSelect, result.asset.mediaType == .video {
-                return
-            }
-            
-            let m = ZLPhotoModel(asset: result.asset)
-            if result.isEdited {
-                m.editImage = result.image
-                m.editImageModel = result.editModel
-            }
-            m.isSelected = true
-            self.arrSelectedModels.append(m)
-        }
+        self.init(selection:
+                    (results ?? [])
+            .map({
+                ZLPhotoSelectedAsset.edited(asset: $0.asset, editModel: $0.editModel, image: $0.image)
+            }))
     }
     
     override init(frame: CGRect) {

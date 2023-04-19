@@ -42,3 +42,12 @@ extension ZLPhotoBrowserWrapper where Base == [ZLResultModel] {
         }.map { $0.element }
     }
 }
+
+
+extension Array where Element == ZLPhotoSelectedAsset {
+    func removeDuplicate() -> [ZLPhotoSelectedAsset] {
+        return enumerated().filter { index, value -> Bool in
+            firstIndex(of: value) == index
+        }.map { $0.element }
+    }
+}
