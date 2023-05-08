@@ -110,6 +110,10 @@ func isSmallScreen() -> Bool {
     return UIScreen.main.bounds.height <= 812
 }
 
+func isRTL() -> Bool {
+    return UIView.userInterfaceLayoutDirection(for: UIView.appearance().semanticContentAttribute) == .rightToLeft
+}
+
 func showAlertView(_ message: String, _ sender: UIViewController?) {
     let action = ZLCustomAlertAction(title: localLanguageTextValue(.ok), style: .default, handler: nil)
     showAlertController(title: nil, message: message, style: .alert, actions: [action], sender: sender)
