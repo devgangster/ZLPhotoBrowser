@@ -192,11 +192,15 @@ public class ZLPhotoPreviewSheet: UIView {
     /// - Parameters:
     ///    - results : preselected results
     @objc public convenience init(results: [ZLResultModel]? = nil) {
-        self.init(selection:
-                    (results ?? [])
-            .map({
-                ZLPhotoSelectedAsset.edited(asset: $0.asset, editModel: $0.editModel, image: $0.image)
-            }))
+        self.init(
+            selection: (results ?? []).map({ item -> ZLPhotoSelectedAsset in
+                if let editModel = item.editModel {
+                    return .edited(asset: item.asset, editModel: editModel, image: item.image)
+                } else {
+                    return .raw(asset: item.asset)
+                }
+            })
+        )
     }
     
     override init(frame: CGRect) {

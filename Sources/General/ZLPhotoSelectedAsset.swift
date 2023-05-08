@@ -11,7 +11,7 @@ import Photos
 public
 enum ZLPhotoSelectedAsset {
     case raw(asset: PHAsset)
-    case edited(asset: PHAsset, editModel: ZLEditImageModel?, image: UIImage)
+    case edited(asset: PHAsset, editModel: ZLEditImageModel, image: UIImage)
     case result(model: ZLResultModel)
 }
 
