@@ -120,6 +120,8 @@ class PhotoConfigureViewController: UIViewController {
         btn.layer.masksToBounds = true
         btn.setTitle("Done", for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 15)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         btn.addTarget(self, action: #selector(dismissBtnClick), for: .touchUpInside)
         return btn
     }()
@@ -151,6 +153,8 @@ class PhotoConfigureViewController: UIViewController {
         func createLabel(_ title: String) -> UILabel {
             let label = UILabel()
             label.font = UIFont.systemFont(ofSize: 14)
+            label.adjustsFontSizeToFitWidth = true
+            label.minimumScaleFactor = 0.7
             label.textColor = .black
             label.text = title
             return label

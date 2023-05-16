@@ -39,6 +39,8 @@ class ViewController: UIViewController {
             let btn = UIButton(type: .custom)
             btn.setTitle(title, for: .normal)
             btn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+            btn.titleLabel?.adjustsFontSizeToFitWidth = true
+            btn.titleLabel?.minimumScaleFactor = 0.7            
             btn.addTarget(self, action: action, for: .touchUpInside)
             btn.backgroundColor = .black
             btn.layer.cornerRadius = 5
@@ -102,6 +104,8 @@ class ViewController: UIViewController {
         
         let takeLabel = UILabel()
         takeLabel.font = UIFont.systemFont(ofSize: 14)
+        takeLabel.adjustsFontSizeToFitWidth = true
+        takeLabel.minimumScaleFactor = 0.7        
         takeLabel.textColor = .black
         takeLabel.text = "Record selected photos："
         view.addSubview(takeLabel)

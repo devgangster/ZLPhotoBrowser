@@ -48,6 +48,8 @@ open class ZLCustomCamera: UIViewController {
     public lazy var tipsLabel: UILabel = {
         let label = UILabel()
         label.font = .zl.font(ofSize: 14)
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7        
         label.textColor = .white
         label.textAlignment = .center
         label.numberOfLines = 2

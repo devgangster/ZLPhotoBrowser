@@ -423,6 +423,8 @@ class ZLThumbnailViewController: UIViewController {
         let btn = UIButton(type: .custom)
         btn.titleLabel?.font = ZLLayout.bottomToolTitleFont
         btn.setTitle(title, for: .normal)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         btn.setTitleColor(
             isDone ? .zl.bottomToolViewDoneBtnNormalTitleColor : .zl.bottomToolViewBtnNormalTitleColor,
             for: .normal

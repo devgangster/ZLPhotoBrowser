@@ -43,6 +43,8 @@ class ZLAlbumListCell: UITableViewCell {
         let label = UILabel()
         label.font = .zl.font(ofSize: 17)
         label.textColor = .zl.albumListTitleColor
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -50,6 +52,8 @@ class ZLAlbumListCell: UITableViewCell {
         let label = UILabel()
         label.font = .zl.font(ofSize: 16)
         label.textColor = .zl.albumListCountColor
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     

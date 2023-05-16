@@ -123,6 +123,8 @@ public class ZLProgressHUD: UIView {
         label.textColor = style.textColor
         label.font = .zl.font(ofSize: 16)
         label.text = localLanguageTextValue(.hudLoading)
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         view.addSubview(label)
         
         addSubview(view)

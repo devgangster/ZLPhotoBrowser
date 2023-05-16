@@ -38,6 +38,8 @@ class CustomAlertController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -46,6 +48,8 @@ class CustomAlertController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -272,6 +276,8 @@ extension CustomAlertController: ZLCustomAlertProtocol {
         btn.setTitle(action.title, for: .normal)
         btn.setTitleColor(action.style.color, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         btn.addTarget(self, action: #selector(btnClickAction(_:)), for: .touchUpInside)
 
         if action.style == .cancel, preferredStyle == .actionSheet {

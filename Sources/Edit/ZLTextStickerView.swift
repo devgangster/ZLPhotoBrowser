@@ -47,6 +47,8 @@ class ZLTextStickerView: ZLBaseStickerView<ZLTextStickerState> {
         label.backgroundColor = bgColor
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     

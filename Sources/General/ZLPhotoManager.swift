@@ -133,6 +133,7 @@ public class ZLPhotoManager: NSObject {
         let arr = [smartAlbums, albums, streamAlbums, syncedAlbums, sharedAlbums]
         
         var albumList: [ZLAlbumListModel] = []
+        var screenshots: ZLAlbumListModel?
         arr.forEach { album in
             album.enumerateObjects { collection, _, _ in
                 guard let collection = collection as? PHAssetCollection else { return }
@@ -155,8 +156,17 @@ public class ZLPhotoManager: NSObject {
                 } else {
                     let m = ZLAlbumListModel(title: title, result: result, collection: collection, option: option, isCameraRoll: false)
                     albumList.append(m)
+                    if collection.assetCollectionSubtype == .smartAlbumScreenshots {
+                        screenshots = m
+                    }
                 }
             }
+        }
+
+        //Move screenshots collection to first place
+        if let screenshots {
+            albumList.removeAll(where: { $0 === screenshots })
+            albumList.insert(screenshots, at: 0)
         }
         
         completion(albumList)
@@ -172,17 +182,42 @@ public class ZLPhotoManager: NSObject {
             if !allowSelectVideo {
                 option.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
             }
-            
+                                
             let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: nil)
+            
+            var recentAlbum: ZLAlbumListModel?
+            var screenshotsAlbum: ZLAlbumListModel?
+            
             smartAlbums.enumerateObjects { collection, _, stop in
                 if collection.assetCollectionSubtype == .smartAlbumUserLibrary {
-                    stop.pointee = true
-                    
                     let result = PHAsset.fetchAssets(in: collection, options: option)
-                    let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection), result: result, collection: collection, option: option, isCameraRoll: true)
-                    ZLMainAsync {
-                        completion(albumModel)
-                    }
+                    let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
+                                                      result: result,
+                                                      collection: collection,
+                                                      option: option,
+                                                      isCameraRoll: true)
+                    recentAlbum = albumModel
+                } else if collection.assetCollectionSubtype == .smartAlbumScreenshots {
+                    stop.pointee = true
+                    let result = PHAsset.fetchAssets(in: collection, options: option)
+                    let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
+                                                      result: result,
+                                                      collection: collection,
+                                                      option: option,
+                                                      isCameraRoll: false)
+                    screenshotsAlbum = albumModel
+                }
+            }
+            
+            ZLMainAsync {
+                if let album = screenshotsAlbum ?? recentAlbum {
+                    completion(album)
+                } else {
+                    completion(ZLAlbumListModel(title: "",
+                                                result: .init(),
+                                                collection: PHAssetCollection(),
+                                                option: option,
+                                                isCameraRoll: true))
                 }
             }
         }

@@ -43,6 +43,8 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
         label.font = .zl.font(ofSize: 13)
         label.textAlignment = .right
         label.textColor = .white
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     

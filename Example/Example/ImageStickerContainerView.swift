@@ -72,6 +72,8 @@ class ImageStickerContainerView: UIView, ZLImageStickerContainerDelegate {
         hideBtn.setImage(UIImage(named: "close"), for: .normal)
         hideBtn.backgroundColor = .clear
         hideBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        hideBtn.titleLabel?.adjustsFontSizeToFitWidth = true
+        hideBtn.titleLabel?.minimumScaleFactor = 0.7
         hideBtn.addTarget(self, action: #selector(hideBtnClick), for: .touchUpInside)
         toolView.addSubview(hideBtn)
         hideBtn.snp.makeConstraints { (make) in

@@ -101,6 +101,8 @@ class ZLPhotoPreviewController: UIViewController {
         label.layer.cornerRadius = 25.0 / 2
         label.layer.masksToBounds = true
         label.isHidden = true
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -370,6 +372,8 @@ class ZLPhotoPreviewController: UIViewController {
     private func createBtn(_ title: String, _ action: Selector, _ isDone: Bool = false) -> UIButton {
         let btn = UIButton(type: .custom)
         btn.titleLabel?.font = ZLLayout.bottomToolTitleFont
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         btn.setTitle(title, for: .normal)
         btn.setTitleColor(
             isDone ? .zl.bottomToolViewDoneBtnNormalTitleColorOfPreviewVC : .zl.bottomToolViewBtnNormalTitleColorOfPreviewVC,
@@ -1083,6 +1087,8 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .zl.font(ofSize: 13)
         label.textColor = .white
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     

@@ -120,6 +120,8 @@ class PhotoConfigureCNViewController: UIViewController {
         btn.layer.masksToBounds = true
         btn.setTitle("完成", for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 15)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         btn.addTarget(self, action: #selector(dismissBtnClick), for: .touchUpInside)
         return btn
     }()
@@ -153,6 +155,8 @@ class PhotoConfigureCNViewController: UIViewController {
             label.font = UIFont.systemFont(ofSize: 14)
             label.textColor = .black
             label.text = title
+            label.titleLabel?.adjustsFontSizeToFitWidth = true
+            label.titleLabel?.minimumScaleFactor = 0.7
             return label
         }
         
@@ -181,6 +185,8 @@ class PhotoConfigureCNViewController: UIViewController {
         tipsLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         tipsLabel.numberOfLines = 2
         tipsLabel.lineBreakMode = .byWordWrapping
+        tipsLabel.adjustsFontSizeToFitWidth = true
+        tipsLabel.minimumScaleFactor = 0.7
         containerView.addSubview(tipsLabel)
         tipsLabel.snp.makeConstraints { make in
             make.top.left.equalTo(containerView).offset(20)
@@ -326,6 +332,8 @@ class PhotoConfigureCNViewController: UIViewController {
         
         languageButton = UIButton(type: .custom)
         languageButton.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        languageButton.titleLabel?.adjustsFontSizeToFitWidth = true
+        languageButton.titleLabel?.minimumScaleFactor = 0.7
         languageButton.setTitle(uiConfig.languageType.toString(), for: .normal)
         languageButton.addTarget(self, action: #selector(languageButtonClick), for: .touchUpInside)
         languageButton.setTitleColor(.white, for: .normal)

@@ -759,6 +759,8 @@ open class ZLEditImageViewController: UIViewController {
         asbinTipLabel.text = localLanguageTextValue(.textStickerRemoveTips)
         asbinTipLabel.numberOfLines = 2
         asbinTipLabel.lineBreakMode = .byCharWrapping
+        asbinTipLabel.adjustsFontSizeToFitWidth = true
+        asbinTipLabel.minimumScaleFactor = 0.7
         ashbinView.addSubview(asbinTipLabel)
         
         if tools.contains(.mosaic) {

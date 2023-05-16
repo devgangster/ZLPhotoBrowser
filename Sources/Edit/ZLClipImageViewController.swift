@@ -1035,6 +1035,8 @@ class ZLImageClipRatioCell: UICollectionViewCell {
         label.layer.shadowColor = UIColor.black.withAlphaComponent(0.3).cgColor
         label.layer.shadowOffset = .zero
         label.layer.shadowOpacity = 1
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     

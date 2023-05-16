@@ -97,6 +97,8 @@ public class ZLPhotoPreviewSheet: UIView {
         label.text = localLanguageTextValue(.noPhotoTips)
         label.textAlignment = .center
         label.textColor = .zl.previewBtnTitleColor
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
         return label
     }()
     
@@ -280,6 +282,8 @@ public class ZLPhotoPreviewSheet: UIView {
         btn.setTitleColor(.zl.previewBtnTitleColor, for: .normal)
         btn.setTitle(title, for: .normal)
         btn.titleLabel?.font = .zl.font(ofSize: 17)
+        btn.titleLabel?.adjustsFontSizeToFitWidth = true
+        btn.titleLabel?.minimumScaleFactor = 0.7
         return btn
     }
     
@@ -680,7 +684,8 @@ public class ZLPhotoPreviewSheet: UIView {
     }
     
     private func showThumbnailViewController() {
-        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: ZLPhotoConfiguration.default().allowSelectImage, allowSelectVideo: ZLPhotoConfiguration.default().allowSelectVideo) { [weak self] cameraRoll in
+        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: ZLPhotoConfiguration.default().allowSelectImage,
+                                          allowSelectVideo: ZLPhotoConfiguration.default().allowSelectVideo) { [weak self] cameraRoll in
             guard let `self` = self else { return }
             let nav: ZLImageNavController
             if ZLPhotoUIConfiguration.default().style == .embedAlbumList {
