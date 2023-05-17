@@ -164,7 +164,7 @@ public class ZLPhotoManager: NSObject {
         }
 
         //Move screenshots collection to first place
-        if let screenshots {
+        if let screenshots, screenshots.count > 0 {
             albumList.removeAll(where: { $0 === screenshots })
             albumList.insert(screenshots, at: 0)
         }
@@ -198,14 +198,18 @@ public class ZLPhotoManager: NSObject {
                                                       isCameraRoll: true)
                     recentAlbum = albumModel
                 } else if collection.assetCollectionSubtype == .smartAlbumScreenshots {
-                    stop.pointee = true
                     let result = PHAsset.fetchAssets(in: collection, options: option)
-                    let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
-                                                      result: result,
-                                                      collection: collection,
-                                                      option: option,
-                                                      isCameraRoll: false)
-                    screenshotsAlbum = albumModel
+                    if result.count > 0 {
+                        stop.pointee = true
+                        let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
+                                                          result: result,
+                                                          collection: collection,
+                                                          option: option,
+                                                          isCameraRoll: false)
+                        screenshotsAlbum = albumModel
+                    } else if let recentAlbum {
+                        stop.pointee = true
+                    }
                 }
             }
             
