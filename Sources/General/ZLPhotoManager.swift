@@ -36,12 +36,8 @@ public class ZLPhotoManager: NSObject {
             completion?(false, nil)
             return
         }
-        
         var placeholderAsset: PHObjectPlaceholder?
-        PHPhotoLibrary.shared().performChanges({
-            let newAssetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
-            placeholderAsset = newAssetRequest.placeholderForCreatedAsset
-        }) { suc, _ in
+        let completionHandler: ((Bool, Error?) -> Void) = { suc, _ in
             ZLMainAsync {
                 if suc {
                     let asset = self.getAsset(from: placeholderAsset?.localIdentifier)
@@ -50,6 +46,19 @@ public class ZLPhotoManager: NSObject {
                     completion?(false, nil)
                 }
             }
+        }
+
+        if image.zl.hasAlphaChannel(), let data = image.pngData() {
+            PHPhotoLibrary.shared().performChanges({
+                let newAssetRequest = PHAssetCreationRequest.forAsset()
+                newAssetRequest.addResource(with: .photo, data: data, options: nil)
+                placeholderAsset = newAssetRequest.placeholderForCreatedAsset
+            }, completionHandler: completionHandler)
+        } else {
+            PHPhotoLibrary.shared().performChanges({
+                let newAssetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                placeholderAsset = newAssetRequest.placeholderForCreatedAsset
+            }, completionHandler: completionHandler)
         }
     }
     
@@ -302,7 +311,7 @@ public class ZLPhotoManager: NSObject {
     @discardableResult
     @objc public class func fetchOriginalImageData(for asset: PHAsset, progress: ((CGFloat, Error?, UnsafeMutablePointer<ObjCBool>, [AnyHashable: Any]?) -> Void)? = nil, completion: @escaping (Data, [AnyHashable: Any]?, Bool) -> Void) -> PHImageRequestID {
         let option = PHImageRequestOptions()
-        if (asset.value(forKey: "filename") as? String)?.hasSuffix("GIF") == true {
+        if asset.zl.isGif {
             option.version = .original
         }
         option.isNetworkAccessAllowed = true
@@ -326,6 +335,9 @@ public class ZLPhotoManager: NSObject {
     /// Fetch image for asset.
     private class func fetchImage(for asset: PHAsset, size: CGSize, resizeMode: PHImageRequestOptionsResizeMode, progress: ((CGFloat, Error?, UnsafeMutablePointer<ObjCBool>, [AnyHashable: Any]?) -> Void)? = nil, completion: @escaping (UIImage?, Bool) -> Void) -> PHImageRequestID {
         let option = PHImageRequestOptions()
+        if ZLPhotoConfiguration.default().alwaysRequestOriginal, asset.mediaType == .image {
+            option.version = .original // original得到的image才会有alpha channel
+        }
         option.resizeMode = resizeMode
         option.isNetworkAccessAllowed = true
         option.progressHandler = { pro, error, stop, info in
