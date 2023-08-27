@@ -123,9 +123,31 @@ public class ZLPhotoManager: NSObject {
         
         return models
     }
-    
+
+    private class func customAlbumsCollections(with titles: [String]) -> [PHFetchResult<PHCollection>]{
+        var customAlbums = [PHFetchResult<PHCollection>]()
+        for title in titles {
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.predicate = NSPredicate(format: "title = %@", title)
+            guard
+                let collection = PHAssetCollection
+                    .fetchAssetCollections(with: .album,
+                                           subtype: .any,
+                                           options: fetchOptions) as? PHFetchResult<PHCollection>
+            else {
+                continue
+            }
+            customAlbums.append(collection)
+        }
+        return customAlbums
+    }
+
     /// Fetch all album list.
-    @objc public class func getPhotoAlbumList(ascending: Bool, allowSelectImage: Bool, allowSelectVideo: Bool, completion: ([ZLAlbumListModel]) -> Void) {
+    @objc public class func getPhotoAlbumList(ascending: Bool,
+                                              allowSelectImage: Bool,
+                                              allowSelectVideo: Bool,
+                                              customAlbums customAlbumsTitles: [String],
+                                              completion: ([ZLAlbumListModel]) -> Void) {
         let option = PHFetchOptions()
         if !allowSelectImage {
             option.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.video.rawValue)
@@ -133,15 +155,20 @@ public class ZLPhotoManager: NSObject {
         if !allowSelectVideo {
             option.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
         }
-        
+
         let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: nil) as! PHFetchResult<PHCollection>
         let albums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: nil) as! PHFetchResult<PHCollection>
         let streamAlbums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumMyPhotoStream, options: nil) as! PHFetchResult<PHCollection>
         let syncedAlbums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumSyncedAlbum, options: nil) as! PHFetchResult<PHCollection>
         let sharedAlbums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumCloudShared, options: nil) as! PHFetchResult<PHCollection>
-        let arr = [smartAlbums, albums, streamAlbums, syncedAlbums, sharedAlbums]
-        
+
+        var arr = [smartAlbums, albums, streamAlbums, syncedAlbums, sharedAlbums]
+
+        let customAlbums = customAlbumsCollections(with: customAlbumsTitles)
+        arr.append(contentsOf: customAlbums)
+
         var albumList: [ZLAlbumListModel] = []
+        var customAlbumsList = Array<ZLAlbumListModel?>(repeating: nil, count: customAlbumsTitles.count)
         var screenshots: ZLAlbumListModel?
         arr.forEach { album in
             album.enumerateObjects { collection, _, _ in
@@ -164,7 +191,14 @@ public class ZLPhotoManager: NSObject {
                     albumList.insert(m, at: 0)
                 } else {
                     let m = ZLAlbumListModel(title: title, result: result, collection: collection, option: option, isCameraRoll: false)
-                    albumList.append(m)
+
+
+                    if let index = customAlbumsTitles.firstIndex(of: title) {
+                        customAlbumsList[index] = m
+                    } else {
+                        albumList.append(m)
+                    }
+
                     if collection.assetCollectionSubtype == .smartAlbumScreenshots {
                         screenshots = m
                     }
@@ -177,12 +211,28 @@ public class ZLPhotoManager: NSObject {
             albumList.removeAll(where: { $0 === screenshots })
             albumList.insert(screenshots, at: 0)
         }
+
+        for customAlbum in customAlbumsList {
+            guard let customAlbum else {
+                continue
+            }
+            albumList.removeAll(where: { $0 === customAlbum })
+
+            if customAlbum.count > 0 {
+                albumList.insert(customAlbum, at: 0)
+            } else {
+                albumList.append(customAlbum)
+            }
+        }
         
         completion(albumList)
     }
     
     /// Fetch camera roll album.
-    @objc public class func getCameraRollAlbum(allowSelectImage: Bool, allowSelectVideo: Bool, completion: @escaping (ZLAlbumListModel) -> Void) {
+    @objc public class func getCameraRollAlbum(allowSelectImage: Bool,
+                                               allowSelectVideo: Bool,
+                                               customAlbums customAlbumsTitles: [String],
+                                               completion: @escaping (ZLAlbumListModel) -> Void) {
         DispatchQueue.global().async {
             let option = PHFetchOptions()
             if !allowSelectImage {
@@ -196,28 +246,54 @@ public class ZLPhotoManager: NSObject {
             
             var recentAlbum: ZLAlbumListModel?
             var screenshotsAlbum: ZLAlbumListModel?
-            
-            smartAlbums.enumerateObjects { collection, _, stop in
-                if collection.assetCollectionSubtype == .smartAlbumUserLibrary {
-                    let result = PHAsset.fetchAssets(in: collection, options: option)
-                    let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
-                                                      result: result,
-                                                      collection: collection,
-                                                      option: option,
-                                                      isCameraRoll: true)
-                    recentAlbum = albumModel
-                } else if collection.assetCollectionSubtype == .smartAlbumScreenshots {
-                    let result = PHAsset.fetchAssets(in: collection, options: option)
-                    if result.count > 0 {
-                        stop.pointee = true
+
+            let customAlbums = customAlbumsCollections(with: customAlbumsTitles).compactMap { $0 as? PHFetchResult<PHAssetCollection> }
+            var customAlbumsList = Array<ZLAlbumListModel?>(repeating: nil, count: customAlbumsTitles.count)
+
+            for customAlbum in customAlbums {
+                if let recentAlbum { break }
+
+                customAlbum.enumerateObjects { collection, _, stop in
+                    if let index = customAlbumsTitles.firstIndex(of: getCollectionTitle(collection)) {
+                        let option = PHFetchOptions()
+                        let result = PHAsset.fetchAssets(in: collection, options: option)
+                        if result.count > 0 {
+                            stop.pointee = true
+                            let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
+                                                              result: result,
+                                                              collection: collection,
+                                                              option: option,
+                                                              isCameraRoll: false)
+                            customAlbumsList[index] = albumModel
+                            recentAlbum = albumModel
+                        }
+                    }
+                }
+            }
+
+            if recentAlbum == nil {
+                smartAlbums.enumerateObjects { collection, _, stop in
+                    if collection.assetCollectionSubtype == .smartAlbumUserLibrary {
+                        let result = PHAsset.fetchAssets(in: collection, options: option)
                         let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
                                                           result: result,
                                                           collection: collection,
                                                           option: option,
-                                                          isCameraRoll: false)
-                        screenshotsAlbum = albumModel
-                    } else if let recentAlbum {
-                        stop.pointee = true
+                                                          isCameraRoll: true)
+                        recentAlbum = albumModel
+                    } else if collection.assetCollectionSubtype == .smartAlbumScreenshots {
+                        let result = PHAsset.fetchAssets(in: collection, options: option)
+                        if result.count > 0 {
+                            stop.pointee = true
+                            let albumModel = ZLAlbumListModel(title: self.getCollectionTitle(collection),
+                                                              result: result,
+                                                              collection: collection,
+                                                              option: option,
+                                                              isCameraRoll: false)
+                            screenshotsAlbum = albumModel
+                        } else if let recentAlbum {
+                            stop.pointee = true
+                        }
                     }
                 }
             }

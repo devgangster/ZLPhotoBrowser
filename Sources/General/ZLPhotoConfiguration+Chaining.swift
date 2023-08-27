@@ -195,7 +195,13 @@ public extension ZLPhotoConfiguration {
         showPreviewButtonInAlbum = value
         return self
     }
-    
+
+    @discardableResult
+    func showCustomAlbums(_ value: [String]) -> ZLPhotoConfiguration {
+        customAlbums = value
+        return self
+    }
+
     @discardableResult
     func showSelectCountOnDoneBtn(_ value: Bool) -> ZLPhotoConfiguration {
         showSelectCountOnDoneBtn = value

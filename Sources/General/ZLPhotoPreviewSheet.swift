@@ -386,10 +386,18 @@ public class ZLPhotoPreviewSheet: UIView {
         arrDataSources.removeAll()
         
         let config = ZLPhotoConfiguration.default()
-        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: config.allowSelectImage, allowSelectVideo: config.allowSelectVideo) { [weak self] cameraRoll in
-            guard let `self` = self else { return }
-            var totalPhotos = ZLPhotoManager.fetchPhoto(in: cameraRoll.result, ascending: false, allowSelectImage: config.allowSelectImage, allowSelectVideo: config.allowSelectVideo, limitCount: config.maxPreviewCount)
+        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: config.allowSelectImage,
+                                          allowSelectVideo: config.allowSelectVideo,
+                                          customAlbums: config.customAlbums) { [weak self] cameraRoll in
+            guard let self else { return }
+            var totalPhotos = ZLPhotoManager.fetchPhoto(in: cameraRoll.result,
+                                                        ascending: false,
+                                                        allowSelectImage: config.allowSelectImage,
+                                                        allowSelectVideo: config.allowSelectVideo,
+                                                        limitCount: config.maxPreviewCount)
+
             markSelected(source: &totalPhotos, selected: &self.arrSelectedModels)
+
             self.arrDataSources.append(contentsOf: totalPhotos)
             self.collectionView.reloadData()
         }
@@ -685,7 +693,8 @@ public class ZLPhotoPreviewSheet: UIView {
     
     private func showThumbnailViewController() {
         ZLPhotoManager.getCameraRollAlbum(allowSelectImage: ZLPhotoConfiguration.default().allowSelectImage,
-                                          allowSelectVideo: ZLPhotoConfiguration.default().allowSelectVideo) { [weak self] cameraRoll in
+                                          allowSelectVideo: ZLPhotoConfiguration.default().allowSelectVideo,
+                                          customAlbums: ZLPhotoConfiguration.default().customAlbums) { [weak self] cameraRoll in
             guard let `self` = self else { return }
             let nav: ZLImageNavController
             if ZLPhotoUIConfiguration.default().style == .embedAlbumList {
@@ -964,7 +973,9 @@ extension ZLPhotoPreviewSheet: UICollectionViewDataSource, UICollectionViewDeleg
         let config = ZLPhotoConfiguration.default()
         let hud = ZLProgressHUD.show()
         
-        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: config.allowSelectImage, allowSelectVideo: config.allowSelectVideo) { [weak self] cameraRoll in
+        ZLPhotoManager.getCameraRollAlbum(allowSelectImage: config.allowSelectImage,
+                                          allowSelectVideo: config.allowSelectVideo,
+                                          customAlbums: config.customAlbums) { [weak self] cameraRoll in
             defer {
                 hud.hide()
             }
@@ -973,10 +984,15 @@ extension ZLPhotoPreviewSheet: UICollectionViewDataSource, UICollectionViewDeleg
                 return
             }
             
-            var totalPhotos = ZLPhotoManager.fetchPhoto(in: cameraRoll.result, ascending: config.sortAscending, allowSelectImage: config.allowSelectImage, allowSelectVideo: config.allowSelectVideo)
+            var totalPhotos = ZLPhotoManager.fetchPhoto(in: cameraRoll.result,
+                                                        ascending: config.sortAscending,
+                                                        allowSelectImage: config.allowSelectImage,
+                                                        allowSelectVideo: config.allowSelectVideo)
+
             markSelected(source: &totalPhotos, selected: &self.arrSelectedModels)
             let defaultIndex = config.sortAscending ? totalPhotos.count - 1 : 0
             var index: Int?
+
             // last和first效果一样，只是排序方式不同时候分别从前后开始查找可以更快命中
             if config.sortAscending {
                 index = totalPhotos.lastIndex { $0 == model }

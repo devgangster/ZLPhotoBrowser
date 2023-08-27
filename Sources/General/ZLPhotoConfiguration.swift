@@ -184,6 +184,9 @@ public class ZLPhotoConfiguration: NSObject {
     
     /// Whether to show the preview button (i.e. the preview button in the lower left corner of the thumbnail interface). Defaults to true.
     public var showPreviewButtonInAlbum = true
+
+    /// Albums to show in segmentation view
+    public var customAlbums: [String] = []
     
     /// Whether to display the selected count on the button. Defaults to true.
     public var showSelectCountOnDoneBtn = true
